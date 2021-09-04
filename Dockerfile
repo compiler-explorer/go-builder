@@ -7,8 +7,13 @@ RUN apt update -y -q && apt upgrade -y -q && apt update -y -q && \
     curl \
     gcc \
     git \
-    s3cmd \
     xz-utils
+
+RUN cd /tmp && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf aws*
 
 ARG BOOTSTRAP_VERSION=1.11.2
 RUN mkdir -p /root/bootstrap && \
