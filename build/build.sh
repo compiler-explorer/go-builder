@@ -10,16 +10,34 @@ else
     BRANCH=go${VERSION}
 fi
 
-OUTPUT=/root/go-${VERSION}.tar.xz
+FULLNAME=go-${VERSION}.tar.xz
+OUTPUT=/root/${FULLNAME}
 S3OUTPUT=""
-if echo $2 | grep s3://; then
+if [[ $2 =~ ^s3:// ]]; then
     S3OUTPUT=$2
 else
-    OUTPUT=${2-/root/go-${VERSION}.tar.xz}
+    if [[ -d "${2}" ]]; then
+        OUTPUT=$2/${FULLNAME}
+    else
+        OUTPUT=${2-$OUTPUT}
+    fi
 fi
 
 DIR=${BRANCH}/go
 git clone --depth 1 -b ${BRANCH} https://go.googlesource.com/go ${DIR}
+
+# determine build revision
+REVISION="golang-$(git ls-remote "${URL}" "${REF}" | cut -f 1)"
+LAST_REVISION="${3}"
+
+echo "ce-build-revision:${REVISION}"
+echo "ce-build-output:${OUTPUT}"
+
+if [[ "${REVISION}" == "${LAST_REVISION}" ]]; then
+    echo "ce-build-status:SKIPPED"
+    exit
+fi
+
 
 pushd ${DIR}/src
 ./make.bash
@@ -41,3 +59,5 @@ tar Jcf ${OUTPUT} --transform "s,^./go,./go-${VERSION}/," -C ${BRANCH} .
 if [[ -n "${S3OUTPUT}" ]]; then
     aws s3 cp --storage-class REDUCED_REDUNDANCY "${OUTPUT}" "${S3OUTPUT}"
 fi
+
+echo "ce-build-status:OK"
