@@ -1,9 +1,8 @@
 #!/bin/bash
-
 set -ex
 
-VERSION=$1
-if echo ${VERSION} | grep 'trunk'; then
+VERSION="$1"
+if echo "${VERSION}" | grep 'trunk'; then
     VERSION=trunk-$(date +%Y%m%d)
     BRANCH=master
 else
@@ -23,8 +22,9 @@ else
     fi
 fi
 
-DIR=${BRANCH}/go
-git clone --depth 1 -b ${BRANCH} https://go.googlesource.com/go ${DIR}
+URL="https://go.googlesource.com/go"
+DIR="${BRANCH}/go"
+git clone --depth 1 -b "${BRANCH}" "${URL}" "${DIR}"
 
 # determine build revision
 REVISION="golang-$(git ls-remote "${URL}" "${REF}" | cut -f 1)"
@@ -39,11 +39,11 @@ if [[ "${REVISION}" == "${LAST_REVISION}" ]]; then
 fi
 
 
-pushd ${DIR}/src
+pushd "${DIR}/src"
 ./make.bash
 popd
 
-pushd ${DIR}
+pushd "${DIR}"
 rm -rf \
     .git \
     .gitattributes \
@@ -54,7 +54,7 @@ rm -rf \
 popd
 
 export XZ_DEFAULTS="-T 0"
-tar Jcf ${OUTPUT} --transform "s,^./go,./go-${VERSION}/," -C ${BRANCH} .
+tar Jcf "${OUTPUT}" --transform "s,^./go,./go-${VERSION}/," -C "${BRANCH}" .
 
 if [[ -n "${S3OUTPUT}" ]]; then
     aws s3 cp --storage-class REDUCED_REDUNDANCY "${OUTPUT}" "${S3OUTPUT}"
