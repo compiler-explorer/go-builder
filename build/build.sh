@@ -27,7 +27,7 @@ DIR="${BRANCH}/go"
 git clone --depth 1 -b "${BRANCH}" "${URL}" "${DIR}"
 
 # determine build revision
-REVISION="golang-$(git ls-remote "${URL}" "${REF}" | cut -f 1)"
+REVISION="golang-$(git ls-remote "${URL}" "refs/heads/${BRANCH}" | cut -f 1)"
 LAST_REVISION="${3}"
 
 echo "ce-build-revision:${REVISION}"
