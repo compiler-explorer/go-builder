@@ -53,6 +53,24 @@ rm -rf \
     pkg/obj
 popd
 
+export GOROOT="${PWD}/${DIR}"
+export GOCACHE="${GOROOT}/cache"
+
+list=(
+    "linux/amd64"
+    "linux/arm64"
+)
+
+for i in "${list[@]}"; do
+    echo $i | while IFS=/ read -r goos goarch;
+    do
+        echo "Populating build cache for ${goos}/${goarch}";
+        export GOOS=${goos}
+        export GOARCH=${goarch}
+        $GOROOT/bin/go build std
+    done
+done
+
 export XZ_DEFAULTS="-T 0"
 tar Jcf "${OUTPUT}" --transform "s,^./go,./go-${VERSION}/," -C "${BRANCH}" .
 
