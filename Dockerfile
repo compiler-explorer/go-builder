@@ -16,7 +16,7 @@ RUN cd /tmp && \
     ./aws/install && \
     rm -rf aws*
 
-ARG BOOTSTRAP_VERSION=1.25.3
+ARG BOOTSTRAP_VERSION=1.26.7
 RUN mkdir -p /root/bootstrap && \
     cd /root/bootstrap && \
     curl -sL https://dl.google.com/go/go${BOOTSTRAP_VERSION}.linux-amd64.tar.gz | tar zxf -
